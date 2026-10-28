@@ -1,0 +1,26 @@
+[package]
+name = "jiangshan-map"
+version = "1.0.0"
+description = "江山时序 · 中国历史交互地图时间轴 (403 BCE – Present)"
+authors = ["DeanChensj"]
+license = "GPL-3.0-only"
+repository = "https://github.com/DeanChensj/jiangshan-map"
+edition = "2021"
+rust-version = "1.90"
+
+[lib]
+name = "jiangshan_map_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = ["macos-private-api"] }
+tauri-plugin-deep-link = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
+tauri-plugin-haptics = "2.4"

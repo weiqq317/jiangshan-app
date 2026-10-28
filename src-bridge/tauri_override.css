@@ -1,0 +1,55 @@
+/* 江山时序 Tauri 封装层：多端体验适配（不修改上游 css/style.css） */
+
+/* 1. 禁用 WebView 默认橡皮筋回弹与长按呼出系统文本菜单；宣纸底色防止加载闪烁 */
+html,
+body {
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  background-color: #f4efe6;
+}
+
+/* 允许搜索框与正文面板正常选中复制。
+   选择器取自上游真实结构：index.html:480 的 #genealogy-card 涵盖沿革/纪传面板
+   （内含 #genealogy-lore 关隘沿革、#genealogy-timeline 纪传条目与 .person-ev-quote 诗句），
+   502/505 行的 #milestone-balloon 与 #hover-tip 为事件气泡与悬浮提示（上游未给 class，只能按 id 选）。
+   恢复 -webkit-touch-callout：html/body 上的 none 会抑制 iOS 长按复制菜单，仅放开选中仍无法复制。 */
+input,
+textarea,
+#genealogy-card,
+#milestone-balloon,
+#hover-tip {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* 2. macOS Overlay 沉浸式标题栏顶部拖拽区
+   拖拽能力来自 data-tauri-drag-region 属性（由 tauri_bridge.js 写入，Tauri 注入的
+   drag.js 负责监听），不使用 Chromium 专有的 -webkit-app-region；该元素仅 macOS 注入。 */
+.tauri-drag-region {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* 3. iOS / Android 刘海屏与底部 Home Indicator 安全区域适配 */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body.tauri-mobile {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* 4. 提升移动端与高分屏下复杂 SVG 疆域多边形的缩放合成帧率 */
+svg {
+  will-change: transform;
+  touch-action: none;
+}

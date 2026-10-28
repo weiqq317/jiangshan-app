@@ -32,3 +32,11 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# 江山时序封装工程
+/upstream/
+/src-tauri/target/
+/src-tauri/gen/
+
+# IDE 工作区产物（计划文档、会话记录等，不属于项目源码）
+.trae/

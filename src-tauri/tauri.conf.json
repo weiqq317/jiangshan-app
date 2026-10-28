@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "江山时序",
+  "version": "1.0.0",
+  "identifier": "com.jiangshan.atlas",
+  "build": {
+    "beforeDevCommand": "npm run serve:dist",
+    "devUrl": "http://localhost:8000",
+    "beforeBuildCommand": "npm run prepare:dist",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "江山时序 · Chronicles of the Realm",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "backgroundColor": "#F4EFE6",
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["jiangshan"]
+      },
+      "mobile": [
+        {
+          "host": "deanchen.me",
+          "pathPrefix": ["/jiangshan-map"]
+        }
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app", "msi", "nsis", "deb", "appimage"],
+    "category": "Education",
+    "shortDescription": "中国历史交互地图时间轴（公元前403年—今）",
+    "longDescription": "江山时序 (Chronicles of the Realm) 将从公元前403年三家分晋至今两千四百余年、18个历史时期的164个疆域与州郡政区快照、历代古城、天下名关、诗词名胜与帝王年号纪年装进一张宣纸设色古舆图。",
+    "copyright": "Copyright © 2026 DeanChensj. Licensed under GPL-3.0 (CHGIS data for non-commercial academic use only).",
+    "resources": ["../LICENSE", "../THIRD_PARTY_NOTICES.md"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

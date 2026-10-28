@@ -1,0 +1,27 @@
+{
+  "name": "jiangshan-map-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "江山时序 (Chronicles of the Realm) Tauri 2.0 跨平台客户端",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "fetch:upstream": "node scripts/fetch_upstream.mjs",
+    "vendor:fonts": "node scripts/vendor_fonts.mjs",
+    "vendor:audio": "node scripts/vendor_audio.mjs",
+    "prepare:dist": "node scripts/prepare_dist.mjs",
+    "serve:dist": "python3 -m http.server 8000 --directory dist",
+    "tauri": "tauri",
+    "dev": "npm run prepare:dist && tauri dev",
+    "build": "npm run prepare:dist && tauri build",
+    "build:universal": "npm run prepare:dist && tauri build --target universal-apple-darwin",
+    "ios:init": "tauri ios init",
+    "ios:dev": "npm run prepare:dist && tauri ios dev",
+    "ios:build": "npm run prepare:dist && tauri ios build",
+    "android:init": "tauri android init",
+    "android:dev": "npm run prepare:dist && tauri android dev",
+    "android:build": "npm run prepare:dist && tauri android build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.4"
+  }
+}

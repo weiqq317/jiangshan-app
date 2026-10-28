@@ -1,0 +1,105 @@
+name: Build and Release Tauri App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      upstream_sha:
+        description: '钉定上游 commit SHA（留空则跟随 main 分支）'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  publish-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Linux System Dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libfuse2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Cache Rust Build Artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          key: ${{ matrix.platform }}${{ matrix.args }}
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Fetch Upstream Snapshot
+        env:
+          UPSTREAM_SHA: ${{ inputs.upstream_sha }}
+        run: npm run fetch:upstream
+
+      # 古琴音频本地化：CSP 的 media-src 'self' 会拦截 upload.wikimedia.org，
+      # 必须把 5 首曲目落到本地并由 prepare_dist 改写 lore_data.js。
+      # 抓取失败不阻断其余平台构建，但会显式告警（产物中曲目将不可播放）。
+      - name: Vendor Guqin Audio
+        id: audio
+        continue-on-error: true
+        run: npm run vendor:audio
+
+      - name: Warn if Guqin Audio Not Vendored
+        if: steps.audio.outcome != 'success'
+        run: echo "::warning title=古琴音频未本地化::无法访问 upload.wikimedia.org，本次产物的 5 首古琴曲目将无法播放。"
+
+      - name: Resolve Upstream Provenance
+        id: upstream
+        shell: bash
+        run: |
+          SHA=$(node -p "require('./upstream/.upstream-version.json').sha || '未知'")
+          DATE=$(node -p "require('./upstream/.upstream-version.json').commitDate || '未知'")
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "上游快照：$SHA（提交时间 $DATE）"
+
+      - name: Build and Bundle with Tauri Action
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: '江山时序 Desktop v__VERSION__'
+          releaseBody: |
+            基于 Tauri 2.0 构建的《江山时序》跨平台全离线客户端。
+
+            - 上游快照：DeanChensj/jiangshan-map@${{ steps.upstream.outputs.sha }}（提交时间 ${{ steps.upstream.outputs.date }}）
+            - 遵循 GPL-3.0 开源协议
+            - 内置 CHGIS 历史政区数据仅限学术与非商业用途
+            - 历史疆域轮廓与州郡政区边界为示意性近似，非精确现代测绘边界
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
