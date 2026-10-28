@@ -1,6 +1,6 @@
 [package]
 name = "jiangshan-map"
-version = "1.0.1"
+version = "1.0.2"
 description = "江山时序 · 中国历史交互地图时间轴 (403 BCE – Present)"
 authors = ["DeanChensj"]
 license = "GPL-3.0-only"

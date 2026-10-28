@@ -102,4 +102,10 @@ jobs:
             - 历史疆域轮廓与州郡政区边界为示意性近似，非精确现代测绘边界
           releaseDraft: true
           prerelease: false
+          # GitHub 存储 release 资产时会静默剥除非 ASCII 字符（中文 productName「江山时序」会被删掉，
+          # 只剩前缀下划线），故改用纯 ASCII 的资产名模板。占位符含义见 tauri-action src/utils.ts：
+          #   [version] 应用版本、[platform] darwin/linux/windows、[arch] aarch64/x64/amd64/arm64、
+          #   [_setup] 仅 NSIS 为 _setup、[ext] 文件后缀。
+          # 例：jiangshan-map_1.0.2_windows_x64_setup.exe / jiangshan-map_1.0.2_darwin_aarch64.app.tar.gz
+          assetNamePattern: 'jiangshan-map_[version]_[platform]_[arch][_setup][ext]'
           args: ${{ matrix.args }}
