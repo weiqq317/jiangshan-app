@@ -1,6 +1,6 @@
 {
   "name": "jiangshan-map-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "江山时序 (Chronicles of the Realm) Tauri 2.0 跨平台客户端",
   "license": "GPL-3.0-only",
